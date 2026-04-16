@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>⚡ VIP PREDICTOR ⚡</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; background: #000; }
+
+/* Game */
+.game-bg {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 1;
+}
+.game-bg iframe { width: 100%; height: 100%; border: 0; }
+
+/* UI */
+.ui-layer {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 100;
+  pointer-events: none;
+}
+.ui-layer > * { pointer-events: auto; }
+
+/* Corner Lights */
+.corner-lights {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+.corner-light {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  filter: blur(40px);
+  opacity: 0.6;
+  animation: cornerMove 4s ease-in-out infinite;
+}
+.corner-light.tl { top: -50px; left: -50px; background: radial-gradient(circle, #00d4ff, transparent); animation-delay: 0s; }
+.corner-light.tr { top: -50px; right: -50px; background: radial-gradient(circle, #ff00ff, transparent); animation-delay: 1s; }
+.corner-light.bl { bottom: -50px; left: -50px; background: radial-gradient(circle, #ffd700, transparent); animation-delay: 2s; }
+.corner-light.br { bottom: -50px; right: -50px; background: radial-gradient(circle, #00ff88, transparent); animation-delay: 3s; }
+@keyframes cornerMove {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+  25% { transform: translate(30px, 30px) scale(1.2); opacity: 0.7; }
+  50% { transform: translate(20px, -20px) scale(0.9); opacity: 0.5; }
+  75% { transform: translate(-20px, 20px) scale(1.1); opacity: 0.6; }
+}
+
+/* Side Lights */
+.side-light {
+  position: absolute;
+  width: 200px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--light-color), transparent);
+  filter: blur(2px);
+  animation: sideMove 3s linear infinite;
+  opacity: 0.8;
+}
+.side-light.left { left: -200px; top: 20%; animation: slideRight 3s linear infinite; }
+.side-light.right { right: -200px; top: 40%; animation: slideLeft 3s linear infinite; }
+.side-light.top { top: -4px; left: 30%; width: 4px; height: 200px; animation: slideDown 3s linear infinite; }
+.side-light.bottom { bottom: -4px; left: 70%; width: 4px; height: 200px; animation: slideUp 3s linear infinite; }
+.side-light:nth-child(5) { --light-color: #00d4ff; animation-delay: 0s; }
+.side-light:nth-child(6) { --light-color: #ff00ff; animation-delay: 0.5s; }
+.side-light:nth-child(7) { --light-color: #ffd700; animation-delay: 1s; }
+.side-light:nth-child(8) { --light-color: #00ff88; animation-delay: 1.5s; }
+@keyframes slideRight { 0% { left: -200px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { left: 100%; opacity: 0; } }
+@keyframes slideLeft { 0% { right: -200px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { right: 100%; opacity: 0; } }
+@keyframes slideDown { 0% { top: -200px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+@keyframes slideUp { 0% { bottom: -200px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { bottom: 100%; opacity: 0; } }
+
+/* ========== FIXED TOP PANEL (Buttons) ========== */
+.top-panel {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+}
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+  background: rgba(10, 10, 15, 0.95);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.1);
+  pointer-events: auto;
+}
+
+/* BIG Buttons */
+.big-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: linear-gradient(145deg, #1a1a2e, #0f0f1a);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.big-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--btn-color), transparent);
+  opacity: 0.3;
+  transition: 0.3s;
+}
+.big-btn:hover::before {
+  opacity: 0.6;
+}
+.big-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 25px var(--btn-glow);
+}
+.big-btn.active {
+  box-shadow: 0 0 30px var(--btn-glow), inset 0 0 15px var(--btn-glow);
+}
+.big-btn .btn-icon {
+  font-size: 24px;
+}
+.big-btn .btn-text {
+  font-size: 9px;
+  color: rgba(255,255,255,0.8);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.big-btn.tg { --btn-color: #00d4ff; --btn-glow: rgba(0, 212, 255, 0.5); }
+.big-btn.pred { --btn-color: #ff00ff; --btn-glow: rgba(255, 0, 255, 0.5); }
+.big-btn.hist { --btn-color: #ffd700; --btn-glow: rgba(255, 215, 0, 0.5); }
+.big-btn.close { --btn-color: #ff2a2a; --btn-glow: rgba(255, 42, 42, 0.5); }
+
+/* ========== DRAGGABLE PREDICTION CARD - FULL BOX DRAG ========== */
+.pred-draggable {
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  transition: transform 0.1s;
+}
+
+.pred-draggable.dragging {
+  cursor: grabbing;
+  transform: translateX(-50%) scale(1.02);
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5));
+}
+
+/* ========== PREMIUM COMPACT PREDICTION BOX ========== */
+.pred-small {
+  position: relative;
+  width: 170px;
+  background: linear-gradient(145deg, rgba(20, 20, 35, 0.98), rgba(10, 10, 20, 0.98));
+  border-radius: 20px;
+  padding: 12px;
+  display: none;
+  border: 2px solid transparent;
+  overflow: hidden;
+  box-shadow: 
+    0 0 40px rgba(0, 212, 255, 0.2),
+    0 0 80px rgba(255, 0, 255, 0.1),
+    inset 0 0 30px rgba(0, 212, 255, 0.05);
+  animation: borderGlow 3s ease-in-out infinite, boxPulse 4s ease-in-out infinite;
+}
+
+.pred-small.show {
+  display: block;
+  animation: popIn 0.3s ease, borderGlow 3s ease-in-out infinite, boxPulse 4s ease-in-out infinite;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.8) translateY(-20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Animated Rainbow Border */
+@keyframes borderGlow {
+  0% { border-color: rgba(0, 212, 255, 0.6); }
+  25% { border-color: rgba(255, 0, 255, 0.6); }
+  50% { border-color: rgba(255, 215, 0, 0.6); }
+  75% { border-color: rgba(0, 255, 136, 0.6); }
+  100% { border-color: rgba(0, 212, 255, 0.6); }
+}
+
+@keyframes boxPulse {
+  0%, 100% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.2), 0 0 80px rgba(255, 0, 255, 0.1), inset 0 0 30px rgba(0, 212, 255, 0.05); }
+  50% { box-shadow: 0 0 60px rgba(0, 212, 255, 0.4), 0 0 100px rgba(255, 0, 255, 0.2), inset 0 0 40px rgba(0, 212, 255, 0.1); }
+}
+
+/* Corner Decorations */
+.pred-small::before, .pred-small::after {
+  content: '✦';
+  position: absolute;
+  font-size: 16px;
+  animation: cornerSpin 3s linear infinite, cornerColor 4s ease-in-out infinite;
+}
+.pred-small::before { 
+  top: 5px; 
+  left: 5px; 
+}
+.pred-small::after { 
+  bottom: 5px; 
+  right: 5px; 
+  animation-delay: 1.5s;
+}
+
+@keyframes cornerSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes cornerColor {
+  0%, 100% { color: #00d4ff; text-shadow: 0 0 10px #00d4ff; }
+  25% { color: #ff00ff; text-shadow: 0 0 10px #ff00ff; }
+  50% { color: #ffd700; text-shadow: 0 0 10px #ffd700; }
+  75% { color: #00ff88; text-shadow: 0 0 10px #00ff88; }
+}
+
+/* Floating Emojis */
+.pred-emojis {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.pred-emoji {
+  position: absolute;
+  font-size: 14px;
+  opacity: 0.4;
+  animation: emojiFloat 5s ease-in-out infinite;
+}
+.pred-emoji:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+.pred-emoji:nth-child(2) { top: 20%; right: 15%; animation-delay: 1s; }
+.pred-emoji:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 2s; }
+.pred-emoji:nth-child(4) { bottom: 15%; right: 10%; animation-delay: 3s; }
+.pred-emoji:nth-child(5) { top: 50%; left: 5%; animation-delay: 4s; }
+
+@keyframes emojiFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+  50% { transform: translateY(-15px) rotate(10deg); opacity: 0.6; }
+}
+
+/* Inner Glow Animation */
+.pred-inner-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+  animation: glowPulse 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.1); }
+}
+
+/* Header */
+.pred-head {
+  text-align: center;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  position: relative;
+  z-index: 1;
+}
+.pred-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px;
+  color: #00d4ff;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.8);
+  animation: titlePulse 2s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+@keyframes titlePulse {
+  0%, 100% { text-shadow: 0 0 10px rgba(0, 212, 255, 0.8); }
+  50% { text-shadow: 0 0 20px rgba(0, 212, 255, 1), 0 0 30px rgba(0, 212, 255, 0.5); }
+}
+
+.pred-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 8px;
+  color: #00ff88;
+}
+.pred-dot {
+  width: 6px;
+  height: 6px;
+  background: #00ff88;
+  border-radius: 50%;
+  animation: blink 1s infinite, pulse 1.5s ease-in-out infinite;
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+@keyframes pulse { 
+  0%, 100% { transform: scale(1); box-shadow: 0 0 5px #00ff88; } 
+  50% { transform: scale(1.3); box-shadow: 0 0 10px #00ff88; } 
+}
+
+/* Period */
+.pred-period {
+  text-align: center;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+}
+.pred-per-lbl {
+  font-size: 7px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1px;
+}
+.pred-per-val {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  color: #ffd700;
+  margin-top: 2px;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  animation: periodGlow 2s ease-in-out infinite;
+}
+@keyframes periodGlow {
+  0%, 100% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+  50% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+}
+
+/* Numbers */
+.pred-nums {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+  position: relative;
+  z-index: 1;
+}
+.pred-num {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #1a1a2e, #0f0f1a);
+  border: 2px solid var(--num-color);
+  box-shadow: 0 0 15px var(--num-glow), inset 0 0 10px var(--num-glow);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--num-color);
+  text-shadow: 0 0 10px var(--num-glow);
+  position: relative;
+  overflow: hidden;
+  animation: numPulse 2s ease-in-out infinite;
+}
+@keyframes numPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 15px var(--num-glow); }
+  50% { transform: scale(1.05); box-shadow: 0 0 25px var(--num-glow), 0 0 40px var(--num-glow); }
+}
+.pred-num::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.15), transparent);
+  animation: shine 2s infinite;
+}
+@keyframes shine { 0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); } 100% { transform: translateX(100%) translateY(100%) rotate(45deg); } }
+.pred-num.big { --num-color: #ff4757; --num-glow: rgba(255, 71, 87, 0.5); }
+.pred-num.small { --num-color: #00ff88; --num-glow: rgba(0, 255, 136, 0.5); }
+
+.pred-vs {
+  font-size: 10px;
+  font-weight: bold;
+  animation: vsPulse 1s ease-in-out infinite;
+}
+@keyframes vsPulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+
+/* Result */
+.pred-res {
+  text-align: center;
+  padding: 8px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+  position: relative;
+  z-index: 1;
+  margin-bottom: 6px;
+}
+.pred-res-lbl {
+  font-size: 7px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1px;
+}
+.pred-res-val {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  margin-top: 3px;
+  letter-spacing: 2px;
+  animation: resPulse 1.5s ease-in-out infinite;
+}
+@keyframes resPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+.pred-res-val.big { color: #ff4757; text-shadow: 0 0 15px rgba(255, 71, 87, 0.8); }
+.pred-res-val.small { color: #00ff88; text-shadow: 0 0 15px rgba(0, 255, 136, 0.8); }
+
+/* Toggle */
+.pred-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
+}
+.pred-tog-txt {
+  font-size: 7px;
+  color: rgba(255,255,255,0.6);
+}
+.mini-switch {
+  position: relative;
+  width: 32px;
+  height: 16px;
+}
+.mini-switch input { opacity: 0; width: 0; height: 0; }
+.mini-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: rgba(255,255,255,0.2);
+  border-radius: 16px;
+  transition: 0.3s;
+}
+.mini-slider::before {
+  content: '';
+  position: absolute;
+  height: 12px;
+  width: 12px;
+  left: 2px;
+  bottom: 2px;
+  background: #fff;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+input:checked + .mini-slider { background: linear-gradient(90deg, #00d4ff, #00ff88); }
+input:checked + .mini-slider::before { transform: translateX(16px); }
+
+/* Close Button */
+.pred-close-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 71, 87, 0.3);
+  color: #ff4757;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+  z-index: 10;
+}
+.pred-close-btn:hover {
+  background: rgba(255, 71, 87, 0.6);
+  transform: rotate(90deg);
+}
+
+/* Loader */
+.pred-loader {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 15, 26, 0.98);
+  border-radius: 20px;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 20;
+}
+.pred-loader.show { display: flex; }
+.spin-icon {
+  width: 40px;
+  height: 40px;
+  border: 3px solid transparent;
+  border-top-color: #00d4ff;
+  border-right-color: #ff00ff;
+  border-bottom-color: #ffd700;
+  border-left-color: #00ff88;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.load-txt-s {
+  font-size: 10px;
+  color: #00d4ff;
+  letter-spacing: 2px;
+  font-family: 'Orbitron', sans-serif;
+  animation: loadPulse 1s ease-in-out infinite;
+}
+@keyframes loadPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ========== HISTORY BOX ========== */
+.hist-small {
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  background: rgba(15, 15, 26, 0.98);
+  border-radius: 16px;
+  padding: 12px;
+  display: none;
+  border: 2px solid rgba(255,215,0,0.3);
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+  z-index: 1001;
+}
+.hist-small.show {
+  display: block;
+  animation: popIn 0.3s ease;
+}
+.hist-head-s {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.hist-title-s {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 12px;
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+.hist-close {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(255, 71, 87, 0.2);
+  color: #ff4757;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+}
+.hist-close:hover {
+  transform: rotate(90deg);
+  background: rgba(255, 71, 87, 0.4);
+}
+
+/* Clear History Button */
+.hist-clear {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(0, 212, 255, 0.2);
+  color: #00d4ff;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+  margin-right: 6px;
+}
+.hist-clear:hover {
+  background: rgba(0, 212, 255, 0.4);
+  transform: scale(1.1);
+}
+.hist-clear::before {
+  content: '🗑️';
+  font-size: 12px;
+}
+
+.hist-stats-s {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.hist-stat-s {
+  flex: 1;
+  text-align: center;
+  padding: 8px 2px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.hist-st-n {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+}
+.hist-st-n.w { color: #00ff88; text-shadow: 0 0 8px rgba(0, 255, 136, 0.5); }
+.hist-st-n.l { color: #ff4757; text-shadow: 0 0 8px rgba(255, 71, 87, 0.5); }
+.hist-st-n.t { color: #ffd700; text-shadow: 0 0 8px rgba(255, 215, 0, 0.5); }
+.hist-st-l {
+  font-size: 7px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 2px;
+  letter-spacing: 1px;
+}
+
+.hist-list-s {
+  max-height: 140px;
+  overflow-y: auto;
+}
+.hist-item-s {
+  display: grid;
+  grid-template-columns: 40px 45px 35px 50px;
+  gap: 4px;
+  align-items: center;
+  padding: 6px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  margin-bottom: 4px;
+  font-size: 9px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.hs-p { color: #00d4ff; font-weight: bold; }
+.hs-pr { 
+  padding: 2px 6px; 
+  border-radius: 4px; 
+  font-size: 8px; 
+  text-align: center;
+  font-weight: bold;
+}
+.hs-pr.b { background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.3); }
+.hs-pr.s { background: rgba(0, 255, 136, 0.2); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3); }
+.hs-r { text-align: center; font-weight: bold; }
+.hs-st { 
+  padding: 2px 6px; 
+  border-radius: 6px; 
+  font-size: 7px; 
+  text-align: center;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+.hs-st.win { background: rgba(0, 255, 136, 0.2); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3); }
+.hs-st.loss { background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid rgba(255, 71, 87, 0.3); }
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #00d4ff, #ff00ff); border-radius: 2px; }
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<!-- Corner & Side Lights -->
+<div class="corner-lights">
+  <div class="corner-light tl"></div>
+  <div class="corner-light tr"></div>
+  <div class="corner-light bl"></div>
+  <div class="corner-light br"></div>
+  <div class="side-light left"></div>
+  <div class="side-light right"></div>
+  <div class="side-light top"></div>
+  <div class="side-light bottom"></div>
+</div>
+
+<div class="game-bg">
+  <iframe src="https://goa999.bet/#/register?invitationCode=716717425171" allowfullscreen></iframe>
+</div>
+
+<div class="ui-layer">
+
+  <!-- FIXED TOP PANEL - Buttons (NOT Draggable) -->
+  <div class="top-panel">
+    <div class="btn-row">
+      <a href="http://t.me/KING_HACKER_9999" class="big-btn tg" target="_blank">
+        <span class="btn-icon">📡</span>
+        <span class="btn-text">TG</span>
+      </a>
+      <button class="big-btn pred active" id="btnPred">
+        <span class="btn-icon">🔮</span>
+        <span class="btn-text">PRED</span>
+      </button>
+      <button class="big-btn hist" id="btnHist">
+        <span class="btn-icon">📊</span>
+        <span class="btn-text">HIST</span>
+      </button>
+      <button class="big-btn close" id="btnClose">
+        <span class="btn-icon">✕</span>
+        <span class="btn-text">CLOSE</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- DRAGGABLE PREDICTION BOX - FULL BOX DRAG -->
+  <div class="pred-draggable" id="predDraggable">
+
+    <!-- PREMIUM COMPACT PREDICTION BOX -->
+    <div class="pred-small show" id="predSmall">
+
+      <!-- Close Button -->
+      <button class="pred-close-btn" id="predCloseBtn" title="Close">✕</button>
+
+      <!-- Floating Emojis -->
+      <div class="pred-emojis">
+        <span class="pred-emoji">🔥</span>
+        <span class="pred-emoji">💎</span>
+        <span class="pred-emoji">⚡</span>
+        <span class="pred-emoji">🎯</span>
+        <span class="pred-emoji">💰</span>
+      </div>
+
+      <!-- Inner Glow -->
+      <div class="pred-inner-glow"></div>
+
+      <!-- Loader -->
+      <div class="pred-loader" id="predLoader">
+        <div class="spin-icon"></div>
+        <div class="load-txt-s">ANALYZING</div>
+      </div>
+
+      <div class="pred-head">
+        <div class="pred-title">
+          <span>🔮</span>
+          <span>PREDICT</span>
+          <span>🔮</span>
+        </div>
+        <div class="pred-live">
+          <div class="pred-dot"></div>
+          <span>LIVE</span>
+        </div>
+      </div>
+
+      <div class="pred-period">
+        <div class="pred-per-lbl">📅 PERIOD</div>
+        <div class="pred-per-val" id="predPer">--------</div>
+      </div>
+
+      <div class="pred-nums" id="predNums">
+        <div class="pred-num" id="pNum1">-</div>
+        <div class="pred-vs">⚡</div>
+        <div class="pred-num" id="pNum2">-</div>
+      </div>
+
+      <div class="pred-res">
+        <div class="pred-res-lbl">🎯 PREDICTION</div>
+        <div class="pred-res-val" id="pRes">⏳ WAIT</div>
+      </div>
+
+      <div class="pred-toggle">
+        <span class="pred-tog-txt">👁️ SHOW</span>
+        <label class="mini-switch">
+          <input type="checkbox" id="predToggle" checked>
+          <span class="mini-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY BOX (Fixed Position) -->
+  <div class="hist-small" id="histSmall">
+    <div class="hist-head-s">
+      <div class="hist-title-s">📜 HISTORY</div>
+      <div style="display: flex;">
+        <button class="hist-clear" id="histClearBtn" title="Clear History"></button>
+        <button class="hist-close" id="histClose">✕</button>
+      </div>
+    </div>
+
+    <div class="hist-stats-s">
+      <div class="hist-stat-s">
+        <div class="hist-st-n w" id="hsWin">0</div>
+        <div class="hist-st-l">✅ WIN</div>
+      </div>
+      <div class="hist-stat-s">
+        <div class="hist-st-n l" id="hsLoss">0</div>
+        <div class="hist-st-l">❌ LOSS</div>
+      </div>
+      <div class="hist-stat-s">
+        <div class="hist-st-n t" id="hsTot">0</div>
+        <div class="hist-st-l">📊 TOT</div>
+      </div>
+    </div>
+
+    <div class="hist-list-s" id="histListS"></div>
+  </div>
+
+</div>
+
+<script>
+const API_URL = 'https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json';
+
+const predDraggable = document.getElementById('predDraggable');
+const predSmall = document.getElementById('predSmall');
+const histSmall = document.getElementById('histSmall');
+const btnPred = document.getElementById('btnPred');
+const btnHist = document.getElementById('btnHist');
+const btnClose = document.getElementById('btnClose');
+const predCloseBtn = document.getElementById('predCloseBtn');
+const predLoader = document.getElementById('predLoader');
+const predPer = document.getElementById('predPer');
+const pNum1 = document.getElementById('pNum1');
+const pNum2 = document.getElementById('pNum2');
+const pRes = document.getElementById('pRes');
+const predToggle = document.getElementById('predToggle');
+const predNums = document.getElementById('predNums');
+const histListS = document.getElementById('histListS');
+const histClose = document.getElementById('histClose');
+const histClearBtn = document.getElementById('histClearBtn');
+const hsWin = document.getElementById('hsWin');
+const hsLoss = document.getElementById('hsLoss');
+const hsTot = document.getElementById('hsTot');
+
+let lastPeriod = null;
+let animating = false;
+let history = [];
+let currentPred = null;
+let currentNums = [];
+
+const B_POOL = [5,6,7,8,9];
+const S_POOL = [0,1,2,3,4];
+
+// ========== ADVANCED PREDICTION ALGORITHM ==========
+function analyzePattern(data) {
+  const numbers = data.map(x => parseInt(x.number));
+  const sizes = numbers.map(n => n >= 5 ? 'BIG' : 'SMALL');
+
+  // Pattern 1: Check for alternating pattern
+  let altScore = 0;
+  for(let i = 0; i < sizes.length - 1; i++) {
+    if(sizes[i] !== sizes[i+1]) altScore++;
+  }
+
+  // Pattern 2: Check for streaks
+  let currentStreak = 1;
+  let maxStreak = 1;
+  let streakType = sizes[0];
+  for(let i = 1; i < sizes.length; i++) {
+    if(sizes[i] === sizes[i-1]) {
+      currentStreak++;
+      if(currentStreak > maxStreak) {
+        maxStreak = currentStreak;
+        streakType = sizes[i];
+      }
+    } else {
+      currentStreak = 1;
+    }
+  }
+
+  // Pattern 3: Frequency analysis (last 20)
+  const bigCount = sizes.filter(s => s === 'BIG').length;
+  const smallCount = sizes.length - bigCount;
+
+  // Pattern 4: Last 3 trend
+  const last3 = sizes.slice(0, 3);
+  const last3Big = last3.filter(s => s === 'BIG').length;
+
+  // Smart Prediction Logic
+  let prediction = 'SMALL';
+  let confidence = 50;
+
+  // If strong streak (>3), bet against it
+  if(maxStreak >= 3) {
+    prediction = streakType === 'BIG' ? 'SMALL' : 'BIG';
+    confidence = 70 + (maxStreak * 5);
+  }
+  // If alternating pattern strong
+  else if(altScore >= 4) {
+    prediction = sizes[0] === 'BIG' ? 'SMALL' : 'BIG';
+    confidence = 65;
+  }
+  // If last 3 all same
+  else if(last3Big === 3) {
+    prediction = 'SMALL';
+    confidence = 75;
+  }
+  else if(last3Big === 0) {
+    prediction = 'BIG';
+    confidence = 75;
+  }
+  // Frequency based
+  else if(bigCount > smallCount + 2) {
+    prediction = 'SMALL';
+    confidence = 60;
+  }
+  else if(smallCount > bigCount + 2) {
+    prediction = 'BIG';
+    confidence = 60;
+  }
+  // Default: follow last
+  else {
+    prediction = sizes[0] === 'BIG' ? 'BIG' : 'SMALL';
+    confidence = 55;
+  }
+
+  return { prediction, confidence, pattern: maxStreak >= 3 ? 'STREAK' : altScore >= 4 ? 'ALT' : 'TREND' };
+}
+
+// ========== FULL BOX DRAG FUNCTIONALITY ==========
+let isDragging = false;
+let currentX = 0;
+let currentY = 0;
+let initialX = 0;
+let initialY = 0;
+let xOffset = 0;
+let yOffset = 0;
+
+function dragStart(e) {
+  // Don't drag if clicking on close button or toggle
+  if(e.target.closest('.pred-close-btn') || e.target.closest('.mini-switch')) return;
+
+  if (e.type === "touchstart") {
+    initialX = e.touches[0].clientX - xOffset;
+    initialY = e.touches[0].clientY - yOffset;
+  } else {
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+  }
+
+  isDragging = true;
+  predDraggable.classList.add('dragging');
+}
+
+function dragEnd(e) {
+  initialX = currentX;
+  initialY = currentY;
+  isDragging = false;
+  predDraggable.classList.remove('dragging');
+}
+
+function drag(e) {
+  if (isDragging) {
+    e.preventDefault();
+
+    if (e.type === "touchmove") {
+      currentX = e.touches[0].clientX - initialX;
+      currentY = e.touches[0].clientY - initialY;
+    } else {
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+    }
+
+    xOffset = currentX;
+    yOffset = currentY;
+
+    // Calculate new position
+    const newLeft = (window.innerWidth / 2) + currentX;
+    const newTop = 100 + currentY;
+
+    predDraggable.style.left = newLeft + 'px';
+    predDraggable.style.top = newTop + 'px';
+    predDraggable.style.transform = 'translateX(-50%)';
+  }
+}
+
+// Event listeners for drag - ON THE WHOLE BOX
+predDraggable.addEventListener("touchstart", dragStart, {passive: false});
+predDraggable.addEventListener("touchend", dragEnd, {passive: false});
+predDraggable.addEventListener("touchmove", drag, {passive: false});
+
+predDraggable.addEventListener("mousedown", dragStart);
+document.addEventListener("mouseup", dragEnd);
+document.addEventListener("mousemove", drag);
+
+// Voice synthesis
+function speak(text) {
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.1;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+function getOppositeNums(pred){
+  const pool = pred === 'BIG' ? S_POOL : B_POOL;
+  return pool.sort(() => 0.5 - Math.random()).slice(0, 2);
+}
+
+// Close Prediction Box
+predCloseBtn.onclick = (e) => {
+  e.stopPropagation();
+  predSmall.classList.remove('show');
+  setTimeout(() => {
+    predSmall.style.display = 'none';
+  }, 200);
+  btnPred.classList.remove('active');
+};
+
+// Clear History
+histClearBtn.onclick = () => {
+  if(confirm('🗑️ Clear all history?')) {
+    history = [];
+    histListS.innerHTML = '';
+    updateStats();
+    speak('History cleared');
+  }
+};
+
+// Prediction Button - Show Prediction, Auto-hide History
+btnPred.onclick = () => {
+  btnPred.classList.add('active');
+  btnHist.classList.remove('active');
+
+  histSmall.classList.remove('show');
+  setTimeout(() => {
+    histSmall.style.display = 'none';
+    predSmall.style.display = 'block';
+    setTimeout(() => predSmall.classList.add('show'), 10);
+  }, 200);
+};
+
+// History Button - Show History, Auto-hide Prediction
+btnHist.onclick = () => {
+  btnHist.classList.add('active');
+  btnPred.classList.remove('active');
+
+  predSmall.classList.remove('show');
+  setTimeout(() => {
+    predSmall.style.display = 'none';
+    histSmall.style.display = 'block';
+    setTimeout(() => histSmall.classList.add('show'), 10);
+    updateStats();
+  }, 200);
+};
+
+// Close Button - Hide Both
+btnClose.onclick = () => {
+  btnPred.classList.remove('active');
+  btnHist.classList.remove('active');
+
+  predSmall.classList.remove('show');
+  histSmall.classList.remove('show');
+
+  setTimeout(() => {
+    predSmall.style.display = 'none';
+    histSmall.style.display = 'none';
+  }, 200);
+};
+
+// History Close Button (X)
+histClose.onclick = () => {
+  histSmall.classList.remove('show');
+  setTimeout(() => {
+    histSmall.style.display = 'none';
+  }, 200);
+  btnHist.classList.remove('active');
+};
+
+predToggle.onchange = () => {
+  predNums.style.opacity = predToggle.checked ? '1' : '0.1';
+};
+
+function showLoader(){
+  predLoader.classList.add('show');
+}
+
+function hideLoader(){
+  predLoader.classList.remove('show');
+}
+
+function renderNums(nums, pred, confidence){
+  pNum1.textContent = nums[0];
+  pNum2.textContent = nums[1];
+
+  const emoji = pred === 'BIG' ? '🐂' : '🐻';
+  const confEmoji = confidence >= 70 ? '🔥' : confidence >= 60 ? '⚡' : '💡';
+  pRes.innerHTML = `${emoji} ${pred} ${confEmoji}`;
+
+  if(pred === 'BIG'){
+    pNum1.className = 'pred-num big';
+    pNum2.className = 'pred-num big';
+    pRes.className = 'pred-res-val big';
+    speak(`${pred} prediction. Numbers ${nums[0]} and ${nums[1]}. Confidence ${confidence} percent`);
+  } else {
+    pNum1.className = 'pred-num small';
+    pNum2.className = 'pred-num small';
+    pRes.className = 'pred-res-val small';
+    speak(`${pred} prediction. Numbers ${nums[0]} and ${nums[1]}. Confidence ${confidence} percent`);
+  }
+}
+
+function addHistory(period, pred, result, status){
+  const div = document.createElement('div');
+  div.className = 'hist-item-s';
+  const resSize = result >= 5 ? 'BIG' : 'SMALL';
+  const statusEmoji = status === 'WIN' ? '✅' : '❌';
+
+  div.innerHTML = `
+    <span class="hs-p">${period.slice(-3)}</span>
+    <span class="hs-pr ${pred==='BIG'?'b':'s'}">${pred}</span>
+    <span class="hs-r" style="color:${resSize==='BIG'?'#ff4757':'#00ff88'}">${result}</span>
+    <span class="hs-st ${status.toLowerCase()}">${statusEmoji} ${status}</span>
+  `;
+
+  histListS.insertBefore(div, histListS.firstChild);
+  while(histListS.children.length > 15) histListS.removeChild(histListS.lastChild);
+
+  if(status === 'WIN') {
+    speak('Win!');
+  } else {
+    speak('Loss!');
+  }
+}
+
+function updateStats(){
+  const wins = history.filter(h => h.status === 'WIN').length;
+  const losses = history.filter(h => h.status === 'LOSS').length;
+  hsWin.textContent = wins;
+  hsLoss.textContent = losses;
+  hsTot.textContent = wins + losses;
+}
+
+async function fetchData(){
+  try{
+    const res = await fetch(API_URL);
+    const json = await res.json();
+
+    if(json?.data?.list?.length > 0){
+      const latest = json.data.list[0];
+      const currentPeriod = latest.issueNumber.toString();
+      const resultNum = parseInt(latest.number);
+      const resultSize = resultNum >= 5 ? 'BIG' : 'SMALL';
+
+      if(currentPeriod !== lastPeriod && !animating){
+        if(lastPeriod && currentPred){
+          const win = (currentPred === resultSize) || currentNums.includes(resultNum);
+          const status = win ? 'WIN' : 'LOSS';
+          history.unshift({period: lastPeriod, pred: currentPred, result: resultNum, status});
+          addHistory(lastPeriod, currentPred, resultNum, status);
+        }
+
+        lastPeriod = currentPeriod;
+        animating = true;
+
+        // Use advanced prediction algorithm
+        const analysis = analyzePattern(json.data.list.slice(0, 10));
+        const nextPred = analysis.prediction;
+        const confidence = analysis.confidence;
+
+        currentPred = nextPred;
+        currentNums = getOppositeNums(nextPred);
+
+        const nextPeriod = (BigInt(currentPeriod) + 1n).toString();
+        predPer.textContent = nextPeriod.slice(-6);
+
+        showLoader();
+        setTimeout(() => {
+          hideLoader();
+          renderNums(currentNums, nextPred, confidence);
+          animating = false;
+        }, 2000);
+      }
+    }
+  } catch(e){ console.error(e); }
+}
+
+// Initial state - Prediction box starts hidden
+predSmall.style.display = 'none';
+predSmall.classList.remove('show');
+btnPred.classList.remove('active');
+
+fetchData();
+setInterval(fetchData, 3000);
+</script>
+
+</body>
+</html>
